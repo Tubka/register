@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
-import { RegisterNick } from './RegisterNick';
-import { RegisterCardNumber } from './RegisterCardNumber';
-import { RegisterContext } from 'helpers/context/RegisterContext'
+import { RegisterNick } from "./RegisterNick";
+import { RegisterCardNumber } from "./RegisterCardNumber";
+import { RegisterContext } from "helpers/context/RegisterContext"
 
 export const RegisterPage = () => {
-  const [info, setInfo] = React.useState({nick: '', cardNumber: ''});
+  const [info, setInfo] = React.useState({nick: "", cardNumber: ""});
 
   return (
     <Switch>

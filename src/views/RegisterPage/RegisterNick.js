@@ -36,23 +36,28 @@ import {
   Row,
   Col,
 } from "reactstrap";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
+import { useTimer } from "helpers/hooks/useTimer";
 
-import { RegisterContext } from 'helpers/context/RegisterContext'
+import { RegisterContext } from "helpers/context/RegisterContext";
 
 export const RegisterNick = () => {
   const [squares1to6, setSquares1to6] = React.useState("");
   const [squares7and8, setSquares7and8] = React.useState("");
   const [fullNameFocus, setFullNameFocus] = React.useState(false);
+  const [alerts, setAlerts] = React.useState({nickAlertLength: null, nickAlertSign: null});
+
+  const { timeToReset, setStartTimer } = useTimer();
+
   const {info, setInfo} = React.useContext(RegisterContext);
-  const [alerts, setAlerts] = React.useState({nickAlertLength: null, nickAlertSign: null})
   const history = useHistory();
+
 
   const handleChangeNick = (e) => {
     setInfo(prev => {
       return ({
         ...prev, 
-        nick: e.target.value,
+        nick: e.target?.value,
       });
     });
   };
@@ -67,9 +72,8 @@ export const RegisterNick = () => {
       nickAlertSign: alertSign
     })
     if(alertSign || alertLength) return;
-    history.push('/register/card-number');
+    history.push("/register/card-number");
   }
-
 
   React.useEffect(() => {
     document.body.classList.toggle("register-page");
@@ -80,6 +84,10 @@ export const RegisterNick = () => {
       document.documentElement.removeEventListener("mousemove", followCursor);
     };
   },[]);
+
+  React.useEffect(() => {
+    if(info.nick?.length) return setStartTimer(true);
+  },[info.nick])
 
   const followCursor = (event) => {
     let posX = event.clientX - window.innerWidth / 2;
@@ -143,7 +151,7 @@ export const RegisterNick = () => {
                           <Input
                             placeholder="Nick"
                             type="text"
-                            value={info.nick}
+                            value={info.nick || ""}
                             onFocus={(e) => setFullNameFocus(true)}
                             onBlur={(e) => setFullNameFocus(false)}
                             onChange={(e) => handleChangeNick(e)}
@@ -155,6 +163,7 @@ export const RegisterNick = () => {
                     <CardFooter>
                     {alerts.nickAlertLength && <Alert color="danger">Length 3-20 characters</Alert>}
                     {alerts.nickAlertSign && <Alert color="danger">Available sign is: numbers/letters/-/_</Alert>}
+                    {timeToReset <= 17 && <Alert color="danger">Seconds to reset page: {timeToReset}</Alert>}
                     <Button type="submit" className="float-right fixed-bottom" color="primary" size="lg" onClick={handleNextPage}>
                         Next page
                     </Button> 

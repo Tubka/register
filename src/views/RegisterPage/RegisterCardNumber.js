@@ -18,6 +18,9 @@
 import classnames from "classnames";
 import { Alert } from "reactstrap";
 import {
+  Modal,
+  ModalHeader,
+  ModalBody,
   Button,
   Card,
   CardHeader,
@@ -35,14 +38,18 @@ import {
   Col,
 } from "reactstrap";
 import React from "react";
-import { useHistory } from 'react-router-dom';
-import { RegisterContext } from 'helpers/context/RegisterContext'
+import { useHistory } from "react-router-dom";
+import { RegisterContext } from "helpers/context/RegisterContext";
+import { useTimer } from "helpers/hooks/useTimer";
 
 export const RegisterCardNumber = () => {
   const [squares1to6, setSquares1to6] = React.useState("");
   const [squares7and8, setSquares7and8] = React.useState("");
   const [fullNameFocus, setFullNameFocus] = React.useState(false);
   const [alertLength, setAlertLength] = React.useState(false);
+  const [isOpenModal, setIsOpenModal] = React.useState(false);
+
+  const { timeToReset, setStartTimer } = useTimer();
 
   const {info, setInfo} = React.useContext(RegisterContext);
   const history = useHistory()
@@ -51,23 +58,29 @@ export const RegisterCardNumber = () => {
     setInfo(prev => {
       return ({
         ...prev,
-        cardNumber: e.target.value
+        cardNumber: e.target?.value
       })
     })
   };
-
+  
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+    window.location.reload();
+  };
+  
   const handleSubmit = (e) => {
-    // e.target.submit()
-    if(info.cardNumber.length !== 10) {
-      e.preventDefault();
+    e.preventDefault();
+    if(info.cardNumber?.length !== 10) {
       setAlertLength(true);
       return;
-    }
+    };
+    setIsOpenModal(true);
     setAlertLength(false);
   }
 
   React.useEffect(() => {
-    if(!info.nick) history.push('/register/nick');
+    if(!info.nick) history.push("/register/nick");
+    setStartTimer(true);
 
     document.body.classList.toggle("register-page");
     document.documentElement.addEventListener("mousemove", followCursor);
@@ -149,6 +162,7 @@ export const RegisterCardNumber = () => {
                     </CardBody>
                     <CardFooter>
                       {alertLength && <Alert color="danger">The card number has 10 digits</Alert>}
+                      {timeToReset <= 17 && <Alert color="danger">Seconds to reset page: {timeToReset}</Alert>}
                       <Button className="float-left" color="primary" size="lg" onClick={() => history.goBack()}>
                         Prev page
                       </Button>
@@ -193,6 +207,14 @@ export const RegisterCardNumber = () => {
             </Container>
           </div>
         </div>
+        <Modal isOpen={isOpenModal} toggle={handleCloseModal} size="lg">
+          <ModalHeader className="justify-content-center" toggle={handleCloseModal}>
+              Information
+          </ModalHeader>
+          <ModalBody>
+            You have registered successfully
+          </ModalBody>
+        </Modal>
         
       </div>
     </>
